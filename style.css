@@ -1,0 +1,96 @@
+/* Основні стилі */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #0f0f1a;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #1a1a2e;
+    padding: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search {
+    display: flex;
+    gap: 10px;
+}
+
+input, button {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: none;
+}
+
+button {
+    background-color: #4cc9f0;
+    cursor: pointer;
+}
+
+.anime-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.anime-card {
+    background: #24243e;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.anime-card:hover {
+    transform: scale(1.05);
+}
+
+.anime-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.anime-card h3 {
+    padding: 10px;
+    margin: 0;
+    font-size: 16px;
+}
+
+/* Стилі для плеєра */
+#player-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 100;
+}
+
+.player-container {
+    width: 80%;
+    max-width: 900px;
+    margin: 2% auto;
+    position: relative;
+}
+
+#anime-player {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.player-container button {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: #f72585;
+    color: white;
+}
