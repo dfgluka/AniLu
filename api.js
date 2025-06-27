@@ -1,4 +1,11 @@
-// Отримання популярних аніме
+// Замість прямого запиту до Shikimori
+const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+const apiUrl = "https://shikimori.one/api/animes?order=popularity&limit=12";
+
+async function getAnime() {
+  const response = await fetch(proxyUrl + apiUrl);
+  // ...інший код
+}// Отримання популярних аніме
 export async function getPopularAnime() {
     try {
         const response = await fetch('https://shikimori.one/api/animes?order=popularity&limit=12');
