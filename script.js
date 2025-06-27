@@ -1,26 +1,63 @@
-// Конфігурація Supabase
+// Ініціалізація Supabase
 const supabaseUrl = 'ВАШ_SUPABASE_URL';
 const supabaseKey = 'ВАШ_SUPABASE_KEY';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Елементи DOM
-const animeList = document.getElementById('anime-list');
-const searchInput = document.getElementById('search-input');
+// Глобальні змінні
+let currentUser = null;
+let currentAnime = null;
 
-// Завантаження аніме при старті
+// Завантаження даних при старті
 document.addEventListener('DOMContentLoaded', async () => {
+    await checkAuth();
     await loadAnime();
 });
 
-// Функція завантаження аніме
+// ====================== АВТОРИЗАЦІЯ ======================
+async function checkAuth() {
+    const { data: { user } } = await supabase.auth.getUser();
+    currentUser = user;
+    updateAuthUI();
+}
+
+function updateAuthUI() {
+    const authSection = document.getElementById('auth-section');
+    
+    if (currentUser) {
+        authSection.innerHTML = `
+            <button onclick="logout()">Вийти</button>
+            <button onclick="showProfile()">Профіль</button>
+        `;
+    } else {
+        authSection.innerHTML = `
+            <button onclick="loginWithGoogle()">Увійти через Google</button>
+        `;
+    }
+}
+
+async function loginWithGoogle() {
+    await supabase.auth.signInWithOAuth({
+        provider: 'google',
+    });
+}
+
+async function logout() {
+    await supabase.auth.signOut();
+    location.reload();
+}
+
+// ====================== АНІМЕ ======================
 async function loadAnime(searchQuery = '') {
+    const animeList = document.getElementById('anime-list');
     animeList.innerHTML = '<div class="skeleton">Завантаження...</div>';
     
     let query = supabase
         .from('anime')
-        .select('*')
-        .order('title', { ascending: true });
-
+        .select(`
+            *,
+            user_favorites (user_id)
+        `);
+    
     if (searchQuery) {
         query = query.ilike('title', `%${searchQuery}%`);
     }
@@ -28,7 +65,7 @@ async function loadAnime(searchQuery = '') {
     const { data, error } = await query;
 
     if (error) {
-        console.error('Помилка завантаження:', error);
+        console.error('Помилка:', error);
         animeList.innerHTML = '<div class="error">Помилка завантаження</div>';
         return;
     }
@@ -36,67 +73,118 @@ async function loadAnime(searchQuery = '') {
     renderAnimeList(data);
 }
 
-// Відображення списку аніме
 function renderAnimeList(animeData) {
+    const animeList = document.getElementById('anime-list');
     animeList.innerHTML = '';
 
     animeData.forEach(anime => {
+        const isFav = currentUser && anime.user_favorites.some(fav => fav.user_id === currentUser.id);
+        
         const card = document.createElement('div');
         card.className = 'anime-card';
         card.innerHTML = `
             <img src="${anime.poster_url || 'https://via.placeholder.com/300x450?text=No+Image'}" alt="${anime.title}">
-            <h3>${anime.title}</h3>
+            <div class="anime-info">
+                <h3>${anime.title}</h3>
+                <p>${anime.year} • ${anime.status}</p>
+                <button onclick="toggleFavorite(event, ${anime.id})">
+                    ${isFav ? '❤️' : '🤍'}
+                </button>
+            </div>
         `;
         
-        card.addEventListener('click', () => {
-            openPlayer(anime.id);
-        });
-
+        card.addEventListener('click', () => showAnimeDetails(anime.id));
         animeList.appendChild(card);
     });
 }
 
-// Пошук аніме
-function searchAnime() {
-    const query = searchInput.value.trim();
-    loadAnime(query);
+// ====================== ОБРАНЕ ======================
+async function toggleFavorite(event, animeId) {
+    event.stopPropagation();
+    
+    if (!currentUser) return alert('Увійдіть у акаунт!');
+    
+    const { error } = await supabase
+        .from('user_favorites')
+        .upsert({
+            user_id: currentUser.id,
+            anime_id: animeId
+        }, {
+            onConflict: ['user_id', 'anime_id']
+        });
+    
+    if (error) alert('Помилка: ' + error.message);
+    else loadAnime(); // Оновлюємо список
 }
 
-// Відкриття плеєра
-async function openPlayer(animeId) {
-    // Отримуємо посилання на відео (приклад)
-    const videoUrl = await getVideoUrl(animeId); 
-    
-    const player = document.getElementById('anime-player');
-    const overlay = document.getElementById('player-overlay');
+// ====================== ПЛЕЄР ======================
+async function showAnimeDetails(animeId) {
+    const { data: anime } = await supabase
+        .from('anime')
+        .select('*')
+        .eq('id', animeId)
+        .single();
 
+    const { data: episodes } = await supabase
+        .from('episodes')
+        .select('*')
+        .eq('anime_id', animeId)
+        .order('number', { ascending: true });
+
+    currentAnime = anime;
+    
+    // Оновлюємо інтерфейс плеєра
+    document.getElementById('player-overlay').style.display = 'block';
+    const episodeList = document.getElementById('episode-list');
+    episodeList.innerHTML = '';
+    
+    episodes.forEach(ep => {
+        const btn = document.createElement('button');
+        btn.className = 'episode-btn';
+        btn.textContent = `Серія ${ep.number}`;
+        btn.onclick = () => playEpisode(ep.video_url);
+        episodeList.appendChild(btn);
+    });
+    
+    if (episodes.length > 0) {
+        playEpisode(episodes[0].video_url);
+    }
+}
+
+function playEpisode(videoUrl) {
+    const player = document.getElementById('anime-player');
+    
     if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(videoUrl);
         hls.attachMedia(player);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => player.play());
     } else if (player.canPlayType('application/vnd.apple.mpegurl')) {
         player.src = videoUrl;
-        player.addEventListener('loadedmetadata', () => player.play());
     }
-
-    overlay.style.display = 'block';
+    
+    player.play();
 }
 
-// Закриття плеєра
 function closePlayer() {
+    document.getElementById('player-overlay').style.display = 'none';
     const player = document.getElementById('anime-player');
     player.pause();
-    document.getElementById('player-overlay').style.display = 'none';
+    player.src = '';
 }
 
-// Функція для отримання посилання на відео (замініть на реальну логіку)
-async function getVideoUrl(animeId) {
-    // Тут ви можете:
-    // 1. Використовувати Consumet API
-    // 2. Брати посилання з вашої бази даних
-    // 3. Використовувати WebTorrent
-    
-    // Приклад для тесту:
-    return 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8';
+// ====================== ПОШУК ======================
+function searchAnime() {
+    const query = document.getElementById('search-input').value.trim();
+    loadAnime(query);
 }
+
+// ====================== ПРОФІЛЬ ======================
+async function showProfile() {
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+    alert(`Профіль: ${profile?.display_name || 'Немає даних'}\nBio: ${profile?.bio || '...'}`);
+        }
