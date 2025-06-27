@@ -1,6 +1,6 @@
 // Ініціалізація Supabase
-const supabaseUrl = 'ВАШ_SUPABASE_URL';
-const supabaseKey = 'ВАШ_SUPABASE_KEY';
+const supabaseUrl = 'https://ymkzolqrqbwbfkfsbimd.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlta3pvbHFycWJ3YmZrZnNiaW1kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5ODMzOTUsImV4cCI6MjA2NjU1OTM5NX0.1Ds6AAm-fCMVcdy7ZF0ionf5Q-pRVJFktXXXt15y7Mk';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
 // Глобальні змінні
