@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>AniUA | Деталі</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="/">AniUA</a></h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="anime-details"></div>
+    </main>
+
+    <script src="api.js"></script>
+    <script>
+        // Отримання ID з URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const animeId = urlParams.get('id');
+
+        // Завантаження даних
+        async function loadAnimeDetails() {
+            const anime = await getAnimeDetails(animeId);
+            const detailsContainer = document.getElementById('anime-details');
+
+            detailsContainer.innerHTML = `
+                <div class="anime-header">
+                    <img src="https://shikimori.one${anime.image.original}" alt="${anime.name}">
+                    <div>
+                        <h2>${anime.russian || anime.name}</h2>
+                        <p>${anime.description}</p>
+                        <button id="add-to-favorites">Додати в обране</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        loadAnimeDetails();
+    </script>
+</body>
+  </html>
