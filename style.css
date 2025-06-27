@@ -1,4 +1,3 @@
-/* Основні стилі */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #0f0f1a;
@@ -11,12 +10,12 @@ header {
     background-color: #1a1a2e;
     padding: 1rem;
     display: flex;
-    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
 }
 
-.search {
+.search-container {
+    padding: 1rem;
     display: flex;
     gap: 10px;
 }
@@ -34,7 +33,7 @@ button {
 
 .anime-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     padding: 20px;
 }
@@ -48,7 +47,7 @@ button {
 }
 
 .anime-card:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
 }
 
 .anime-card img {
@@ -57,13 +56,11 @@ button {
     object-fit: cover;
 }
 
-.anime-card h3 {
+.anime-info {
     padding: 10px;
-    margin: 0;
-    font-size: 16px;
 }
 
-/* Стилі для плеєра */
+/* Плеєр */
 #player-overlay {
     display: none;
     position: fixed;
@@ -87,10 +84,20 @@ button {
     border-radius: 8px;
 }
 
-.player-container button {
-    position: absolute;
-    top: -40px;
-    right: 0;
-    background: #f72585;
-    color: white;
+.episode-list {
+    margin-top: 10px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
 }
+
+.episode-btn {
+    padding: 5px 10px;
+    background: #1a1a2e;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.episode-btn:hover {
+    background: #4cc9f0;
+    }
