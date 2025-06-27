@@ -3,31 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AniLu - Аніме сайт</title>
+    <title>AniLu</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Підключаємо HLS.js для плеєра -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
     <header>
         <h1>AniLu</h1>
-        <div class="search">
-            <input type="text" id="search-input" placeholder="Пошук аніме...">
-            <button onclick="searchAnime()">Пошук</button>
-        </div>
+        <div class="auth-section" id="auth-section"></div>
     </header>
 
     <main>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Пошук аніме...">
+            <button onclick="searchAnime()">Пошук</button>
+        </div>
+
         <div class="anime-list" id="anime-list">
             <!-- Тут з'являться картки аніме -->
-            <div class="skeleton">Завантаження...</div>
         </div>
     </main>
 
-    <!-- Плеєр (прихований спочатку) -->
+    <!-- Плеєр -->
     <div id="player-overlay">
         <div class="player-container">
             <video id="anime-player" controls></video>
+            <div class="episode-list" id="episode-list"></div>
             <button onclick="closePlayer()">× Закрити</button>
         </div>
     </div>
