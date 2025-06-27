@@ -188,3 +188,14 @@ async function showProfile() {
 
     alert(`Профіль: ${profile?.display_name || 'Немає даних'}\nBio: ${profile?.bio || '...'}`);
         }
+// У script.js
+async function fillTestData() {
+  const testAnime = {
+    title: "Attack on Titan",
+    poster_url: "https://cdn.myanimelist.net/images/anime/10/47347.jpg",
+    year: 2013,
+    status: "finished"
+  };
+  
+  await supabase.from('anime').insert(testAnime);
+}
